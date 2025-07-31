@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import sklearn.neural_network
 import pandas as pd
 from typing import *
+from pymoo.core.callback import Callback
 
 def generate_train_val_plot(clf: sklearn.neural_network):
     val_loss = clf.validation_scores_
@@ -23,3 +24,12 @@ def train_with_cross_val(clf: sklearn.neural_network, X: pd.DataFrame, y: pd.Ser
         scores[metric] = cross_val_score(clf, X, y, cv=cv, scoring=metric)
 
     return scores
+
+
+class PymooCallback(Callback):
+    def __init__(self):
+        super().__init__()
+        self.data["best_individuals"] = []
+    
+    def notify(self, algorithm):
+        self.data["best_individuals"].append(algorithm.pop.get("F").min())
